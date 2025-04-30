@@ -1,0 +1,132 @@
+import cv2
+from os import sys
+class ATM:
+    def _init_(self):
+        self.balance = 0
+        self.transactions = []
+
+    def deposit(self, amount):
+        self.balance += amount
+        self.transactions.append(("Deposit", amount, self.balance))
+        print(f"Deposit successful. New balance is {self.balance}")
+
+    def withdraw(self, amount):
+        if amount > self.balance:
+            print("Insufficient funds. Withdrawal unsuccessful.")
+        else:
+            self.balance -= amount
+            self.transactions.append(("Withdrawal", amount, self.balance))
+            print(f"Withdrawal successful. New balance is {self.balance}")
+
+    def transfer(self, amount, recipient_account_number, accounts):
+        if amount > self.balance:
+            print("Insufficient funds. Transfer unsuccessful.")
+        else:
+            if recipient_account_number not in accounts:
+                print("Recipient account not found. Transfer unsuccessful.")
+            else:
+                recipient = accounts[recipient_account_number]
+                self.balance -= amount
+                recipient.balance += amount
+                self.transactions.append(("Transfer", amount, self.balance))
+                print(f"Transfer successful. New balance is {self.balance}")
+
+    def check_balance(self):
+        print(f"Your current balance is {self.balance}")
+
+    def mini_statement(self):
+        print("Transaction history:")
+        for transaction in self.transactions:
+            print(f"{transaction[0]} of {transaction[1]} - New balance is {transaction[2]}")
+
+    def exit(self):
+        print("Thank you for using this ATM.!")
+        exit()
+
+    def run(self):
+        accounts = {
+            "123456": ATM(),
+            "234567": ATM()
+        }
+
+        while True:
+            print("\nWelcome to the ATM management system.")
+            print("Please select an option:")
+            print("1. Deposit")
+            print("2. Withdraw")
+            print("3. Transfer")
+            print("4. Check balance")
+            print("5. Mini statement")
+            print("6. Exit")
+
+            choice = int(input())
+
+            if choice == 1:
+                amount = float(input("Enter amount to deposit: "))
+                self.deposit(amount)
+            elif choice == 2:
+                amount = float(input("Enter amount to withdraw: "))
+                self.withdraw(amount)
+            elif choice == 3:
+                amount = float(input("Enter amount to transfer: "))
+                recipient_account_number = input("Enter recipient's account number: ")
+                self.transfer(amount, recipient_account_number, accounts)
+            elif choice == 4:
+                self.check_balance()
+            elif choice == 5:
+                self.mini_statement()
+            elif choice == 6:
+              self.exit()
+              sys.exit()
+            else:
+                print("Invalid choice. Please try again.")
+#list consisting of users private information
+user_data=[[12345,"2003/2/23",7032526221],[60789,"2002/11/26",9100477897],[24681,"2001/11/5",6303491263]]
+access_permitted = False
+# Load the two fingerprint images
+img1 = cv2.imread(r"/content/srikanthbio.jpg", cv2.IMREAD_GRAYSCALE)
+img2 = cv2.imread(r"/fingerprint.jpeg", cv2.IMREAD_GRAYSCALE)
+attempts =0
+# Check if images loaded successfully
+if img1 is None or img2 is None:
+  while attempts<=2:
+    img1 = cv2.imread(r"/content/srikanthbio.jpg", cv2.IMREAD_GRAYSCALE)
+    img2 = cv2.imread(r"/fingerprint.jpeg", cv2.IMREAD_GRAYSCALE)
+    if img1 is None or img2 is None:
+         print("FingerPrint Not Matched!")
+         attempts += 1
+    else:
+      # Resize the images to a common size
+      img1 = cv2.resize(img1, (500, 500))
+      img2 = cv2.resize(img2, (500, 500))
+      # Perform fingerprint matching using OpenCV's template matching algorithm
+      res = cv2.matchTemplate(img1, img2, cv2.TM_CCOEFF_NORMED)[0][0]
+      # Check if the matching score is above a certain threshold
+      if res >= 0.8:
+        print("Fingerprint match found!")
+        ATM().run()
+if attempts==3:
+  try:
+    acc_no=int(input("Enter acc_no:"))
+    dob=input("Enter dob: ")
+    for i in range(len(user_data)):
+      if acc_no == user_data[i][0] and dob == user_data[i][1]:
+        access_permitted = True
+        break
+    if access_permitted:
+      print("Access Permitted")
+      ATM().run()
+  except:
+      exit()
+  else:
+        print("Card Blocked")
+if img1 is not None and img2 is not None:
+  # Resize the images to a common size
+  img1 = cv2.resize(img1, (500, 500))
+  img2 = cv2.resize(img2, (500, 500))
+  # Perform fingerprint matching using OpenCV's template matching algorithm
+  res = cv2.matchTemplate(img1, img2, cv2.TM_CCOEFF_NORMED)[0][0]
+  # Check if the matching score is above a certain threshold
+  if res >= 0.8:
+    print("Fingerprint match found!")
+    ATM().run()
